@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from "react-router-dom";
 import './CadastroUsuario.css'
 import capa from '../../assets/images/capa-cadastro.png'
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import Swal from 'sweetalert2'
+import { cadastrarEmailSenha, loginGoogle } from "../../firebase/auth"
+import { toast } from 'react-hot-toast';
 
 
 const schema = yup.object().shape({
@@ -18,13 +21,21 @@ const schema = yup.object().shape({
 });
 
 function CadastroUsuario() {
-
+    const navigate = useNavigate();
     const { register, handleSubmit, formState: { errors, isSubmitted } } = useForm({
         resolver: yupResolver(schema),
     });
 
     function formSubmit(data) {
-        console.log(data);
+        const { nome, sobrenome, email, senha } = data;
+        cadastrarEmailSenha(nome, sobrenome, email, senha)
+        .then((user) => {
+            toast.success(`Bem-vindo ${user.displayName}`, {position: 'top-center', duration: 3000});
+            navigate("/");
+        })
+        .catch((error) => {
+            toast.error(error.message)
+        })
     }
 
     function abrirModalPoliticaSenha() {
@@ -45,6 +56,17 @@ function CadastroUsuario() {
         })
     }
 
+    function onLoginGoogle (){
+        loginGoogle()
+        .then((user) => {
+            toast.success(`login realizado com sucesso!`, {position: 'top-center', duration: 3000})
+            navigate("/")
+        })
+        .catch((error) => {
+            toast.error(error.message)
+        });
+    }
+    
 
     return (
         <div className='container my-5'>
@@ -102,7 +124,7 @@ function CadastroUsuario() {
                                 <p>ou inscreva-se com:</p>
                                 <a className='mx-3 fs-2'><i className="bi bi-facebook"></i></a>
                                 <a className='mx-3 fs-2'><i className="bi bi-twitter"></i></a>
-                                <a className='mx-3 fs-2'><i className="bi bi-google"></i></a>
+                                <a onClick={onLoginGoogle} className='mx-3 fs-2'><i className="bi bi-google"></i></a>
                                 <a className='mx-3 fs-2'><i className="bi bi-github"></i></a>
                             </div>
 
