@@ -6,7 +6,7 @@ export function Root() {
         <>
             <header><Menu /></header>
             <main><Outlet /></main>
-            {/* <footer>@Teste</footer> */}
+            
         </>
     );
 };
